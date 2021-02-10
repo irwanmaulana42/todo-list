@@ -1,36 +1,116 @@
-import React, { useState } from 'react'
+import React, { Component, useState } from 'react'
 import { BrowserRouter as Router, Route, Link, Switch, Redirect } from 'react-router-dom';
-const Login = props => {
-  return (
-    <div>
-      <div className="uk-container">
-        <div className="uk-flex uk-flex-center uk-margin-medium-top">
-          <div className="uk-card uk-card-default uk-card-small uk-card-body uk-width-1-2@m">
-            <h3 className="uk-card-title">Login</h3>
-            <div className="uk-margin">
-              <label className="uk-form-label" htmlFor="username">Username</label>
-              <div className="uk-form-controls">
-                <input className="uk-input" id="username" type="text" placeholder="Username" />
-              </div>
-            </div>
+import { connect } from "react-redux";
 
-            <div className="uk-margin">
-              <label className="uk-form-label" htmlFor="password">Password</label>
-              <div className="uk-form-controls">
-                <input className="uk-input" id="password" type="password" placeholder="Password" />
+import { login } from './../../config/redux/action/auth';
+
+
+class Login extends Component {
+  constructor(props) {
+    super(props);
+    this.handleLogin = this.handleLogin.bind(this);
+    this.onChangeUsername = this.onChangeUsername.bind(this);
+    this.onChangePassword = this.onChangePassword.bind(this);
+
+    this.state = {
+      username: "",
+      password: "",
+      loading: false,
+    };
+  }
+
+  onChangeUsername(e) {
+    this.setState({
+      username: e.target.value,
+    });
+  }
+
+  onChangePassword(e) {
+    this.setState({
+      password: e.target.value,
+    });
+  }
+
+  componentDidMount(){
+    const { dispatch, history } = this.props;
+    console.log('handle Login', this.props);
+  }
+  handleLogin = (e) => {
+    e.preventDefault();
+    const { dispatch, history } = this.props;
+    console.log('handle Login', this.props);
+    dispatch(login(this.state.username, this.state.password))
+    .then((response) => {
+      console.log('login Hanle', response);
+    })
+    .catch((err) => {
+      console.log(err);
+    })
+  }
+
+  render() {
+    const { isLoggedIn, message } = this.props;
+    
+    if(isLoggedIn){
+      return <Redirect to="/" />
+    }
+
+    return (
+      <div>
+        <div className="uk-container">
+          <div className="uk-flex uk-flex-center uk-margin-medium-top">
+            <div className="uk-card uk-card-default uk-card-small uk-card-body uk-width-1-2@m">
+              <h3 className="uk-card-title">Login</h3>
+              <div className="uk-margin">
+                <label className="uk-form-label" htmlFor="username">Username</label>
+                <div className="uk-form-controls">
+                  <input 
+                    className="uk-input" 
+                    id="username" 
+                    type="text" 
+                    placeholder="Username" 
+                    name="username" 
+                    value={this.state.username}
+                    onChange={this.onChangeUsername}
+                    />
+                </div>
               </div>
-            </div>
-            <span>Not have account?
+
+              <div className="uk-margin">
+                <label className="uk-form-label" htmlFor="password">Password</label>
+                <div className="uk-form-controls">
+                  <input 
+                    className="uk-input" 
+                    id="password" 
+                    type="password" 
+                    placeholder="Password"
+                    name="password"
+                    value={this.state.password}
+                    onChange={this.onChangePassword}    
+                  />
+                </div>
+              </div>
+              <span>Not have account?
             <Link to="/register">Sign Up</Link>
-            </span>
-            <div className="uk-column-1-2">
-              <button className="uk-button uk-button-primary">Sign In</button>
+              </span>
+              <div className="uk-column-1-2">
+                <button className="uk-button uk-button-primary" onClick={this.handleLogin}>Sign In</button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
 }
 
-export default Login;
+const mapStateToProps = (state) => {
+  const { isLoggedIn } = state.authReducer;
+  const { message } = state.messageReducer;
+  return {
+    isLoggedIn,
+    message
+  };
+}
+
+export default connect(mapStateToProps)(Login);

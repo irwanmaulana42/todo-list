@@ -40,10 +40,16 @@ class AuthController extends Controller
         $credentials = $request->only(['username', 'password']);
 
         if (! $token = Auth::attempt($credentials)) {
-            return response()->json(['code' => 401,'message' => 'Unauthorized'], 200);
+            return response()->json(['code' => 404,'message' => 'Not Found'], 200);
         }
 
         return $this->respondWithToken($token);
+    }
 
+    public function verify(){
+        return response()->json([
+            'code' => 200,
+            'message' => 'Authorized'
+        ]);
     }
 }

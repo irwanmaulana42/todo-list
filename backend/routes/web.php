@@ -21,6 +21,7 @@ $router->group(['as' => 'api.', 'prefix' => 'api'], function() use ($router){
         $router->post('/login', 'AuthController@login');
 
         $router->group(['middleware' => 'auth'], function() use ($router){
+            $router->get('/verify', 'AuthController@verify');
             $router->group(['prefix' => 'label', 'as' => 'label.'], function() use ($router){
                 $router->get('/', 'ManageLabelsController@index');
                 $router->post('/store', 'ManageLabelsController@store');

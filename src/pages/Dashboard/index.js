@@ -1,96 +1,172 @@
-import React, { useState } from 'react'
-import { BrowserRouter as Router, Route, Link, Switch, Redirect } from 'react-router-dom';
-const Dashboard = props => {
+import React, { useState, useEffect } from 'react'
+import Modal from 'react-modal';
+
+import './style.css';
+
+import NavBar from './../../component/NavBar';
+import UserService from './../../services/userService';
+
+const customStyles = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)'
+  }
+};
+Modal.setAppElement('#root');
+const Dashboard = (props) => {
+  const [todos, setTodos] = useState([]);
+  const [labels, setLabels] = useState([]);
+  const [add, setAdd] = useState('');
+  const [addLabel, setAddLabel] = useState('');
+  const [modalIsOpen, setIsOpen] = useState(false);
+
+  const [idEdit, setIdEdit] = useState(0);
+  const [addEdit, setAddEdit] = useState('');
+  const [labelEdit, setLabelEdit] = useState(0);
+
+  function openModal(data) {
+    setIdEdit(data.id);
+    setAddEdit(data.task);
+    setLabelEdit(data.label_id);
+    setIsOpen(true);
+  }
+
+  function closeModal() {
+    setIsOpen(false);
+  }
+
+  const getLabels = async () => {
+    const getLabels = await UserService.getLabels();
+    if (getLabels.code === 200) {
+      setLabels(getLabels.message);
+    }
+  }
+
+  const getTodos = async () => {
+    const getTodos = await UserService.getTodos();
+    console.log(getTodos);
+    if (getTodos.code === 200) {
+      setTodos(getTodos.message);
+    }
+  }
+
+  const onChangeLabel = (e) => {
+    setAddLabel(e.target.value);
+    setLabelEdit(e.target.value);
+  }
+
+  const onChangeAdd = (e) => {
+    setAdd(e.target.value);
+  }
+
+  const handleSubmitAdd = async () => {
+    if (add.trim() === '' && addLabel.trim() === '') {
+      return;
+    }
+
+    const data = await UserService.postTodos(add, addLabel);
+    if (data.code === 200) {
+      setAdd('');
+      getTodos();
+    }
+  }
+
+  const handleDelete = async (id) => {
+    const data = await UserService.deleteTodos(id);
+    if (data.code === 200) {
+      getTodos();
+    }
+  }
+
+  const handleCompleted = async (id, e) => {
+    let setCompleted = (e.target.checked) ? 1 : 0;
+    const data = await UserService.setCompletedTodos(setCompleted, id);
+    if (data.code === 200) {
+      getTodos();
+    }
+  }
+
+  const handleEditTodos = async () => {
+    if (addEdit.trim() === '') {
+      return;
+    }
+    const data = await UserService.editTodos(addEdit, labelEdit, idEdit);
+    console.log('edit', data);
+    if (data.code === 200) {
+      setIsOpen(false);
+      getTodos();
+    }
+  }
+
+  useEffect(() => {
+    getTodos();
+    getLabels();
+  }, [])
+
   return (
     <div>
-      <nav className="uk-navbar-container" >
-        <div className="uk-navbar-left">
-          <Link className="uk-navbar-item uk-logo" to="/">LOGO</Link>
-          <ul className="uk-navbar-nav">
-            <li>
-              <a href="#">
-                <span className="uk-icon uk-margin-small-right" uk-icon="icon: star"></span>
-                    Manage User
-                </a>
-            </li>
-            <li>
-              <a href="#">
-                <span className="uk-icon uk-margin-small-right" uk-icon="icon: star"></span>
-                    Manage Label
-                </a>
-            </li>
-            <li>
-              <a href="#">
-                <span className="uk-icon uk-margin-small-right" uk-icon="icon: star"></span>
-                    Manage Todos
-                </a>
-            </li>
-            <li style={{
-              position: 'absolute',
-              right: 0
-            }}>
-              <a href="#">
-                <span className="uk-icon uk-margin-small-right" uk-icon="icon: star"></span>
-                    Logout
-                </a>
-            </li>
-          </ul>
-        </div>
-      </nav>
-
+      <NavBar />
       <div className="uk-container uk-container-xlarge uk-margin-top">
         <div className="uk-margin uk-card uk-card-default uk-card-body">
           <h3>TO DO LIST</h3>
-          <div className="uk-grid-small">
-            <div className="uk-width-1-1">
-              <input className="uk-input" type="text" placeholder="Add" />
-              <button className="uk-button uk-button-primary">Submit</button>
+          <div className="uk-flex">
+            <input className="uk-input" type="text" placeholder="Add" value={add} onChange={onChangeAdd.bind(this)} />
+            <select className="uk-select" name="label" onChange={onChangeLabel}>
+              <option value="">-</option>
+              {labels.length > 0 && labels.map((item) => {
+                return (
+                  <option key={item.id} value={item.id}>{item.label}</option>
+                )
+              })}
+            </select>
+            <button className="uk-button uk-button-primary" onClick={handleSubmitAdd}>Submit</button>
+          </div>
+          <hr />
+          <Modal
+            isOpen={modalIsOpen}
+            onRequestClose={closeModal}
+            style={customStyles}
+            contentLabel="Example Modal"
+          >
+            <div className="uk-flex">
+              <input className="uk-input" type="text" placeholder="Add" value={addEdit} onChange={onChangeAdd.bind(this)} />
+              <select className="uk-select" defaultValue={labelEdit} onChange={onChangeLabel}>
+                {labels.length > 0 && labels.map((item) => {
+                  return (
+                    <option key={item.id} value={item.id} >{item.label}</option>
+                  )
+                })}
+              </select>
+              <button className="uk-button uk-button-danger" onClick={handleEditTodos}>Edit</button>
             </div>
-          </div>
-          <div className="uk-flex uk-flex-right">
-          <button className="uk-label uk-label-danger">Danger</button>
-            <button className="uk-label uk-label-danger">Danger</button>
-          </div>
+          </Modal>
           <ul className="uk-list uk-list-striped">
-            <li>
-              <div className="uk-flex uk-flex-between">
-                <div className="uk-margin uk-grid-small uk-child-width-auto uk-grid" style={{ marginBottom: 0 }}>
-                  <label style={{
-                    textDecoration: 'line-through'
-                  }}><input className="uk-checkbox" type="checkbox" defaultChecked={true} /> List A</label>
-                </div>
-                <div>
-                  <button className="uk-button uk-button-primary uk-button-small">X</button>
-                </div>
-              </div>
-            </li>
-            <li>
-              <div className="uk-flex uk-flex-between">
-                <div className="uk-margin uk-grid-small uk-child-width-auto uk-grid" style={{ marginBottom: 0 }}>
-                  <label style={{
-                    textDecoration: 'line-through'
-                  }}><input className="uk-checkbox" type="checkbox" defaultChecked={true} /> List B</label>
-                </div>
-                <div>
-                  <span class="uk-label uk-label-danger">Label</span>
-                </div>
-                <div>
-                  <button className="uk-button uk-button-primary uk-button-small">X</button>
-                </div>
-              </div>
-            </li>
-            <li>
-              <div className="uk-flex uk-flex-between">
-                <div className="uk-margin uk-grid-small uk-child-width-auto uk-grid" style={{ marginBottom: 0 }}>
-                  <label style={{
-                    textDecoration: 'line-through'
-                  }}><input className="uk-checkbox" type="checkbox" defaultChecked={true} /> List C</label>
-                </div>
-                <div>
-                  <button className="uk-button uk-button-primary uk-button-small">X</button>
-                </div>
-              </div>
-            </li>
+            {todos.length > 0 && todos.map((item) => {
+              return (
+                <li key={item.id}>
+                  <div className="uk-flex uk-flex-between">
+                    <div className="uk-margin uk-grid-small uk-child-width-auto uk-grid" style={{ marginBottom: 0 }}>
+                      <label className={item.completed === 1 ? 'completed' : ''}>
+                        <input className="uk-checkbox" onChange={handleCompleted.bind(this, item.id)} type="checkbox" defaultChecked={item.completed === 1 ? true : false} /> {item.task}
+                      </label>
+                    </div>
+                    <div>
+                      {item.label_id !== null && (
+                        <span className="uk-label">{item.label}</span>
+                      )}
+                    </div>
+                    <div>
+                      <button className="uk-button uk-button-danger uk-button-small" uk-icon="more-vertical" onClick={openModal.bind(this, item)}></button>
+                      <button className="uk-button uk-button-primary uk-button-small" onClick={handleDelete.bind(this, item.id)}>x</button>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>

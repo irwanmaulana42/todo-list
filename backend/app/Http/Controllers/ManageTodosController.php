@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\Log;
 class ManageTodosController extends Controller
 {
     use ApiResponse;
-    public function index()
+    public function index(Request $request)
     {
-        $todos = Todos::all();
+        $todos = Todos::select('labels.label', 'todos.*')->leftJoin('labels', 'labels.id', '=', 'todos.label_id')->where('todos.user_id', $request->get('user_id'))->get();
         return $this->apiResponse($todos);
     }
 
@@ -49,13 +49,25 @@ class ManageTodosController extends Controller
         if(!Todos::where('id', $id)->first()){
             return $this->apiResponse('Not Found', 404);
         }
-        $this->validated($request);
+
+        $this->validate($request, [
+            'user_id' => 'required',
+        ]);
+
+        $data = [];
+
         try {
-            Todos::where('id', $id)->update([
-                'user_id' => $request->post('user_id'),
-                'task' => $request->post('task'),
-                'completed' => $request->post('completed'),
-            ]);
+            $data['user_id'] = $request->post('user_id');
+
+            if($request->post('task') !== NULL){
+                $data['task'] = $request->post('task');
+            }
+
+            if($request->post('completed') !== NULL){
+                $data['completed'] = $request->post('completed');
+            }
+
+            Todos::where('id', $id)->update($data);
 
             if($label_id = $request->post('label_id')){
                 $this->updateLabel($label_id, $id);
