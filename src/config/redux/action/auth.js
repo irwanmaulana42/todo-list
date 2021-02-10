@@ -12,17 +12,18 @@ import AuthService from './../../../services/authService';
 const login = (username, password) => (dispatch) => {
   return AuthService.login(username, password)
   .then((response) => {
-    console.log('Auth Login Reducer', response);
-    dispatch({
-      type: LOGIN_SUCCESS,
-      payload: {
-        user: response
-      }
-    });
+    if(response.code === 200){
+      dispatch({
+        type: LOGIN_SUCCESS,
+        payload: {
+          user: response
+        }
+      });
+    }
+    console.log('adasd', response);
 
     return Promise.resolve(response);
   }, (error) => {
-    console.log(error);
     const message =
         (error.response &&
           error.response.data &&

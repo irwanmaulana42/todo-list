@@ -56,8 +56,8 @@ class ManageUsersController extends Controller
         $this->validated($request);
         try {
             User::where('id', $id)->update([
-                'name' => $request->post('label'),
-                'username' => $request->post('desc'),
+                'name' => $request->post('name'),
+                'username' => $request->post('username'),
             ]);
             
             if($request->post('password')){
@@ -70,6 +70,24 @@ class ManageUsersController extends Controller
                 $this->updateAdmin($admin, $id);
             }
             return $this->apiResponse('UPDATED');
+        } catch (\Exception $e) {
+            Log::error($e);
+            return $this->apiResponse($e->getMessage(), 500);
+        }
+    }
+
+    public function confirmation(Request $request, $id)
+    {
+        if (!User::where('id', $id)->first()) {
+            return $this->apiResponse('Not Found', 404);
+        }
+
+        try {
+            User::where('id', $id)->update([
+                'confirmed' => 1
+            ]);
+
+            return $this->apiResponse('CONFIRM');
         } catch (\Exception $e) {
             Log::error($e);
             return $this->apiResponse($e->getMessage(), 500);
@@ -97,7 +115,6 @@ class ManageUsersController extends Controller
         return $this->validate($request, [
             'name' => 'required',
             'username' => 'required',
-            'password' => 'required',
         ]);
     }
 }

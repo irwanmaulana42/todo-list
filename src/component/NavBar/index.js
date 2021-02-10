@@ -19,13 +19,13 @@ const NavBar = (props) => {
             (
               <>
               <li>
-                <a href="#">
+                <a href="/users">
                   <span className="uk-icon uk-margin-small-right" uk-icon="icon: star"></span>
                       Manage User
                   </a>
               </li>
               <li>
-                <a href="#">
+                <a href="/labels">
                   <span className="uk-icon uk-margin-small-right" uk-icon="icon: star"></span>
                       Manage Label
                   </a>
@@ -34,7 +34,7 @@ const NavBar = (props) => {
               )
             }
             <li>
-              <a href="#">
+              <a href="/">
                 <span className="uk-icon uk-margin-small-right" uk-icon="icon: star"></span>
                     Manage Todos
                 </a>

@@ -13,6 +13,8 @@ class Login extends Component {
     this.onChangePassword = this.onChangePassword.bind(this);
 
     this.state = {
+      failed: false,
+      message: '',
       username: "",
       password: "",
       loading: false,
@@ -31,17 +33,18 @@ class Login extends Component {
     });
   }
 
-  componentDidMount(){
-    const { dispatch, history } = this.props;
-    console.log('handle Login', this.props);
-  }
   handleLogin = (e) => {
     e.preventDefault();
     const { dispatch, history } = this.props;
     console.log('handle Login', this.props);
     dispatch(login(this.state.username, this.state.password))
     .then((response) => {
-      console.log('login Hanle', response);
+      if(response.code === 204 || response.code === 404){
+        this.setState({
+          failed: true,
+          message: response.message
+        });
+      }
     })
     .catch((err) => {
       console.log(err);
@@ -50,9 +53,8 @@ class Login extends Component {
 
   render() {
     const { isLoggedIn, message } = this.props;
-    
     if(isLoggedIn){
-      return <Redirect to="/" />
+      return window.location.href = "/";
     }
 
     return (
@@ -61,6 +63,13 @@ class Login extends Component {
           <div className="uk-flex uk-flex-center uk-margin-medium-top">
             <div className="uk-card uk-card-default uk-card-small uk-card-body uk-width-1-2@m">
               <h3 className="uk-card-title">Login</h3>
+              {this.state.failed && (
+                <>
+                  <div className="uk-alert-danger">
+                    <p>{this.state.message}</p>
+                  </div>
+                </>
+              )}
               <div className="uk-margin">
                 <label className="uk-form-label" htmlFor="username">Username</label>
                 <div className="uk-form-controls">

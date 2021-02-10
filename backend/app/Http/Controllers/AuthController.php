@@ -14,11 +14,15 @@ class AuthController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
-            'username' => 'required|unique:users',
+            'username' => 'required',
             'password' => 'required',
         ]);
 
         try {
+            $checkUser = User::where('username', $request->post('username'))->count();
+            if($checkUser > 0){
+                return response()->json(['code' => 204, 'message' => 'Username has already been taken']);
+            }
             User::create([
                 'name' => $request->post('name'),
                 'username' => $request->post('username'),
@@ -42,8 +46,12 @@ class AuthController extends Controller
         if (! $token = Auth::attempt($credentials)) {
             return response()->json(['code' => 404,'message' => 'Not Found'], 200);
         }
-
-        return $this->respondWithToken($token);
+        $checkLogin = User::where('username', $request->post('username'))->where('confirmed', 1)->count();
+        if($checkLogin > 0){
+            return $this->respondWithToken($token);
+        }else{
+            return response()->json(['code' => 204, 'message' => 'Users Not Confirmed'], 200);
+        }
     }
 
     public function verify(){

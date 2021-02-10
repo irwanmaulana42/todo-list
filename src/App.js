@@ -10,6 +10,8 @@ import UserService from './services/userService';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import ManageLabels from './pages/ManageLabels';
+import ManageUsers from './pages/ManageUsers';
 
 const App = () => {
   return (
@@ -18,7 +20,9 @@ const App = () => {
         <Switch>
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
-          <PrivateRoute path="/" component={Dashboard} />
+          <PrivateRoute exact path="/" component={Dashboard} />
+          <PrivateRoute path="/users" component={ManageUsers} />
+          <PrivateRoute path="/labels" component={ManageLabels} />
         </Switch>
       </Router>
     </Provider>
@@ -27,16 +31,6 @@ const App = () => {
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
   const auth = useSelector(state => state.authReducer);
-  console.log(auth);
-  // (async function(){
-  //   const check = await UserService.checkLogin();
-  //   console.log(check);
-  //   if(check.code === 401){
-  //     // localStorage.removeItem("user");
-  //   }
-    
-  // })()
-
   return (
     <Route {...rest} render={(props) => (auth.isLoggedIn ? <Component {...props} /> : <Redirect to="/login" />)} />
   )

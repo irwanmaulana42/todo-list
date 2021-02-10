@@ -39,7 +39,7 @@ $router->group(['as' => 'api.', 'prefix' => 'api'], function() use ($router){
             $router->group(['prefix' => 'users', 'as' => 'users.'], function() use ($router){
                 $router->get('/', 'ManageUsersController@index');
                 $router->post('/store', 'ManageUsersController@store');
-                $router->post('/confirm/{id}', 'ManageUsersController@confirm');
+                $router->post('/confirmation/{id}', 'ManageUsersController@confirmation');
                 $router->put('/edit/{id}', 'ManageUsersController@edit');
                 $router->delete('/delete/{id}', 'ManageUsersController@destroy');
             });

@@ -13,7 +13,8 @@ const customStyles = {
     right: 'auto',
     bottom: 'auto',
     marginRight: '-50%',
-    transform: 'translate(-50%, -50%)'
+    transform: 'translate(-50%, -50%)',
+    width: '700px',
   }
 };
 Modal.setAppElement('#root');
@@ -48,7 +49,6 @@ const Dashboard = (props) => {
 
   const getTodos = async () => {
     const getTodos = await UserService.getTodos();
-    console.log(getTodos);
     if (getTodos.code === 200) {
       setTodos(getTodos.message);
     }
@@ -161,7 +161,7 @@ const Dashboard = (props) => {
                     </div>
                     <div>
                       <button className="uk-button uk-button-danger uk-button-small" uk-icon="more-vertical" onClick={openModal.bind(this, item)}></button>
-                      <button className="uk-button uk-button-primary uk-button-small" onClick={handleDelete.bind(this, item.id)}>x</button>
+                      <button className="uk-button uk-button-primary uk-button-small" uk-icon="close" onClick={handleDelete.bind(this, item.id)}></button>
                     </div>
                   </div>
                 </li>
