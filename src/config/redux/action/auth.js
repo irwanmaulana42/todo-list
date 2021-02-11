@@ -20,8 +20,6 @@ const login = (username, password) => (dispatch) => {
         }
       });
     }
-    console.log('adasd', response);
-
     return Promise.resolve(response);
   }, (error) => {
     const message =

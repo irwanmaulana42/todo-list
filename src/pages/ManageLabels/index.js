@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Modal from 'react-modal';
+import { useAlert } from 'react-alert'
 
 import './style.css';
 
@@ -19,6 +20,7 @@ const customStyles = {
 Modal.setAppElement('#root');
 
 const ManageLabels = (props) => {
+  const alert = useAlert();
   const [nameLabel, setNameLabel] = useState('');
   const [descLabel, setDescLabel] = useState('');
 
@@ -45,6 +47,8 @@ const ManageLabels = (props) => {
     const getLabels = await UserService.getLabels();
     if (getLabels.code === 200) {
       setLabels(getLabels.message);
+    }else{
+      alert.show(getLabels.message);
     }
   }
 
@@ -66,6 +70,9 @@ const ManageLabels = (props) => {
       setNameLabel('');
       setDescLabel('');
       getLabels();
+      alert.show(data.message);
+    }else{
+      alert.show(data.message);
     }
   }
 
@@ -73,6 +80,9 @@ const ManageLabels = (props) => {
     const data = await UserService.deleteLabel(id);
     if (data.code === 200) {
       getLabels();
+      alert.show(data.message);
+    }else{
+      alert.show(data.message);
     }
   }
 
@@ -93,6 +103,9 @@ const ManageLabels = (props) => {
     if (data.code === 200) {
       getLabels();
       setIsOpen(false);
+      alert.show(data.message);
+    }else{
+      alert.show(data.message);
     }
   }
 

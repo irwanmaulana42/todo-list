@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Modal from 'react-modal';
-
+import { useAlert } from 'react-alert'
 import './style.css';
 
 import NavBar from './../../component/NavBar';
@@ -19,6 +19,8 @@ const customStyles = {
 };
 Modal.setAppElement('#root');
 const Dashboard = (props) => {
+  const alert = useAlert();
+
   const [todos, setTodos] = useState([]);
   const [labels, setLabels] = useState([]);
   const [add, setAdd] = useState('');
@@ -65,20 +67,27 @@ const Dashboard = (props) => {
 
   const handleSubmitAdd = async () => {
     if (add.trim() === '' && addLabel.trim() === '') {
+      alert.show('Harap lengkapi kolom');
       return;
     }
 
     const data = await UserService.postTodos(add, addLabel);
     if (data.code === 200) {
+      alert.show(data.message);
       setAdd('');
       getTodos();
+    }else{
+      alert.show(data.message);
     }
   }
 
   const handleDelete = async (id) => {
     const data = await UserService.deleteTodos(id);
     if (data.code === 200) {
+      alert.show(data.message);
       getTodos();
+    }else{
+      alert.show(data.message);
     }
   }
 
@@ -86,7 +95,10 @@ const Dashboard = (props) => {
     let setCompleted = (e.target.checked) ? 1 : 0;
     const data = await UserService.setCompletedTodos(setCompleted, id);
     if (data.code === 200) {
+      alert.show(data.message);
       getTodos();
+    }else{
+      alert.show(data.message);
     }
   }
 
@@ -95,10 +107,12 @@ const Dashboard = (props) => {
       return;
     }
     const data = await UserService.editTodos(addEdit, labelEdit, idEdit);
-    console.log('edit', data);
     if (data.code === 200) {
+      alert.show(data.message);
       setIsOpen(false);
       getTodos();
+    }else{
+      alert.show(data.message);
     }
   }
 

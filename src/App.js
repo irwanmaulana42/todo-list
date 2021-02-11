@@ -1,6 +1,7 @@
 import logo from './logo.svg';
 import { BrowserRouter as Router, Route, Link, Switch, Redirect } from 'react-router-dom';
-
+import { transitions, positions, Provider as AlertProvider } from 'react-alert'
+import AlertTemplate from 'react-alert-template-basic'
 import './App.css';
 import { Provider, useSelector, useDispatch } from 'react-redux';
 import { store } from './config/redux';
@@ -13,19 +14,32 @@ import Dashboard from './pages/Dashboard';
 import ManageLabels from './pages/ManageLabels';
 import ManageUsers from './pages/ManageUsers';
 
+
+// optional configuration
+const options = {
+  // you can also just use 'bottom center'
+  position: positions.BOTTOM_CENTER,
+  timeout: 5000,
+  offset: '30px',
+  // you can also just use 'scale'
+  transition: transitions.SCALE
+}
+
 const App = () => {
   return (
-    <Provider store={store}>
-      <Router>
-        <Switch>
-          <Route path="/login" component={Login} />
-          <Route path="/register" component={Register} />
-          <PrivateRoute exact path="/" component={Dashboard} />
-          <PrivateRoute path="/users" component={ManageUsers} />
-          <PrivateRoute path="/labels" component={ManageLabels} />
-        </Switch>
-      </Router>
-    </Provider>
+    <AlertProvider template={AlertTemplate} {...options}>
+      <Provider store={store}>
+        <Router>
+          <Switch>
+            <Route path="/login" component={Login} />
+            <Route path="/register" component={Register} />
+            <PrivateRoute exact path="/" component={Dashboard} />
+            <PrivateRoute path="/users" component={ManageUsers} />
+            <PrivateRoute path="/labels" component={ManageLabels} />
+          </Switch>
+        </Router>
+      </Provider>
+    </AlertProvider>
   );
 }
 
